@@ -1,0 +1,5 @@
+# Vim swap files
+*.swp
+
+# Mypy cache
+.mypy_cache
