@@ -66,7 +66,7 @@ s1 lo:  s1-eth1:h1-eth0 s1-eth2:h2-eth0
 c0
 ```
 
-Mininet terminal also supports the `{host} {command}` syntax in order to run any command on a given toppology host. It will also substitute the topology host name for the host IP. For example:
+Mininet terminal also supports the `{host} {command}` syntax in order to run any command on a given topology host. It will also substitute the topology host name for the host IP. For example:
 
 ```
 h1 ping -c 1 h2
@@ -424,7 +424,7 @@ mininet> iperf h1 h4
 *** Results: ['203 Kbits/sec', '229 Kbits/sec']
 ```
 
-**Curiosity**: You can also check the UDP bandwidth using `iperfudp`. We can see that if we don't care about packet loss that much we can achieve a much higher bandwidth, but that's usually a challange for most web applications.
+**Curiosity**: You can also check the UDP bandwidth using `iperfudp`. We can see that if we don't care about packet loss that much we can achieve a much higher bandwidth, but that's usually a challenge for most web applications.
 
 ```
 mininet> iperfudp 20M h1 h4
@@ -465,6 +465,56 @@ Link Parameters:
 * Distribution to Access (a1,a2,a3,a4): 1Gbps, 3ms
 * Access to Hosts: 100Mbps, 5ms
 
+
+```
+wifi@wifi-VirtualBox:~$ sudo python shared/mininet-tutorial/example_1_4.py
+```
+
+```
+mininet> net
+h1 h1-eth0:s1-eth2
+h2 h2-eth0:s1-eth3
+h3 h3-eth0:s2-eth2
+h4 h4-eth0:s2-eth3
+h5 h5-eth0:s3-eth2
+h6 h6-eth0:s3-eth3
+h7 h7-eth0:s4-eth2
+h8 h8-eth0:s4-eth3
+a1 lo:  a1-eth1:c1-eth1 a1-eth2:s1-eth1 a1-eth3:s2-eth1
+a2 lo:  a2-eth1:c1-eth2 a2-eth2:s3-eth1 a2-eth3:s4-eth1
+c1 lo:  c1-eth1:a1-eth1 c1-eth2:a2-eth1
+s1 lo:  s1-eth1:a1-eth2 s1-eth2:h1-eth0 s1-eth3:h2-eth0
+s2 lo:  s2-eth1:a1-eth3 s2-eth2:h3-eth0 s2-eth3:h4-eth0
+s3 lo:  s3-eth1:a2-eth2 s3-eth2:h5-eth0 s3-eth3:h6-eth0
+s4 lo:  s4-eth1:a2-eth3 s4-eth2:h7-eth0 s4-eth3:h8-eth0
+c0
+```
+
+```
+mininet> pingall
+*** Ping: testing ping reachability
+h1 -> h2 h3 h4 h5 h6 h7 h8
+h2 -> h1 h3 h4 h5 h6 h7 h8
+h3 -> h1 h2 h4 h5 h6 h7 h8
+h4 -> h1 h2 h3 h5 h6 h7 h8
+h5 -> h1 h2 h3 h4 h6 h7 h8
+h6 -> h1 h2 h3 h4 h5 h7 h8
+h7 -> h1 h2 h3 h4 h5 h6 h8
+h8 -> h1 h2 h3 h4 h5 h6 h7
+*** Results: 0% dropped (56/56 received)
+```
+
+```
+mininet> iperf h1 h2
+*** Iperf: testing TCP bandwidth between h1 and h2
+*** Results: ['67.5 Mbits/sec', '79.5 Mbits/sec']
+mininet> iperf h1 h3
+*** Iperf: testing TCP bandwidth between h1 and h3
+*** Results: ['74.3 Mbits/sec', '88.0 Mbits/sec']
+mininet> iperf h1 h5
+*** Iperf: testing TCP bandwidth between h1 and h5
+*** Results: ['79.4 Mbits/sec', '94.7 Mbits/sec']
+```
 
 
 

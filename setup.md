@@ -11,21 +11,21 @@ Introduction
 Setup
 =====
 
-## Mininet Wifi
+## Mininet WiFi
 
 TODO
 
 ## Working over SSH
 
-Working on a virtualized user interface is usually annoying for some reasons, like different keymaps and lack of
+Working on a virtualized user interface is usually annoying for some reasons, like different key maps and lack of
 known workspace tools.
 
 
-### Setup Port Fowarding
+### Setup Port Forwarding
 
 If you're using a NAT network setup (VirtualBox default), you may need to add a port forwarding entry.
 
-VirtualBox -> Settings -> Network -> Advanced -> Port Fowarding
+VirtualBox -> Settings -> Network -> Advanced -> Port Forwarding
 
 Add rule:
 
@@ -37,7 +37,7 @@ Guest IP: 22
 ```
 
 
-* ifconfig on virtual machine
+* IP of the virtual machine
 
 
 **Curiosity**: Another option is to use "Host-only Adapter" setup.
@@ -55,7 +55,7 @@ brew cask install xquartz
 
 You will have to logout for changes to take place.
 
-We also need to set enverionmental variable for the Python interpreter locale. Add to `~/.bash_profile`:
+We also need to set environmental variables for the Python interpreter locale. You may add the following liner to `~/.bash_profile`:
 
 ```
 export LC_ALL=en_US.UTF-8
@@ -93,7 +93,7 @@ mininet-wifi> h1 xterm
 
 ## Setup File Sharing
 
-Add the current user to the Virtualbox user group to avoid using sudo all the time.
+Add the current user to the VirtualBox user group to avoid using `sudo` all the time.
 
 ```
 sudo usermod -G vboxsf -a $USER
@@ -130,6 +130,12 @@ Try cleaning up
 
 ```
 sudo mn -c
+```
+
+Try removing other processes
+
+```
+sudo fuser -k 6653/tcp
 ```
 
 
