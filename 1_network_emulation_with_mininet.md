@@ -465,6 +465,87 @@ Link Parameters:
 * Distribution to Access (a1,a2,a3,a4): 1Gbps, 3ms
 * Access to Hosts: 100Mbps, 5ms
 
+```python
+# encoding: utf-8
+
+import atexit
+from mininet.net import Mininet
+from mininet.topo import Topo
+from mininet.cli import CLI
+from mininet.log import setLogLevel
+from mininet.link import TCLink
+
+
+# Entity Names
+
+CORE_SwITCH = "c1"
+DISTRIBUTION_SWICHES = ["a{}".format(id + 1) for id in range(2)]
+ACCESS_SWITCHES = ["s{}".format(id + 1) for id in range(4)]
+HOSTS = ["h{}".format(id + 1) for id in range(8)]
+
+
+#
+CORE_BW = 10e3  # 10 Gbps
+CORE_DELAY = 1  # 1 ms
+DISTRIBUTION_BW = 1e3  # 1 Gbps
+DISTRIBUTION_DELAY = 3  # 3ms
+ACCESS_BW = 100  # 100 Mbps
+ACCESS_DELAY = 5  # 5ms
+
+
+def createTopo():
+    topo = Topo()
+
+    # Create switches
+    for switch in ACCESS_SWITCHES + DISTRIBUTION_SWICHES + [CORE_SwITCH]:
+        topo.addSwitch(switch)
+
+    # Create hosts
+    for host in HOSTS:
+        topo.addHost(host)
+
+    # Create core to distribution links
+    for idx, distribution in enumerate(DISTRIBUTION_SWICHES):
+        topo.addLink(distribution, CORE_SwITCH, bw=CORE_BW, delay=CORE_DELAY)
+
+    # Create distribution to access links
+    for idx, access in enumerate(ACCESS_SWITCHES):
+        topo.addLink(
+            access,
+            DISTRIBUTION_SWICHES[idx / 2],
+            bw=DISTRIBUTION_BW,
+            delay=DISTRIBUTION_DELAY,
+        )
+
+    # Create access to host links
+    for idx, host in enumerate(HOSTS):
+        topo.addLink(
+            host, ACCESS_SWITCHES[idx / 2], bw=ACCESS_BW, delay=ACCESS_DELAY
+        )
+
+    return topo
+
+
+def startNetwork(net):
+    topo = createTopo()
+    net = Mininet(topo=topo, autoSetMacs=True, link=TCLink)
+    net.start()
+    CLI(net)
+
+
+def stopNetwork(net):
+    if net is not None:
+        net.stop()
+
+
+if __name__ == "__main__":
+    net = None
+    atexit.register(lambda: stopNetwork(net))
+    setLogLevel("info")
+    startNetwork(net)
+```
+
+We can now start the defined topology and verify if the resulting network matches the specification.
 
 ```
 wifi@wifi-VirtualBox:~$ sudo python shared/mininet-tutorial/example_1_4.py
@@ -490,6 +571,8 @@ s4 lo:  s4-eth1:a2-eth3 s4-eth2:h7-eth0 s4-eth3:h8-eth0
 c0
 ```
 
+We can also verify that all hosts can ping each other.
+
 ```
 mininet> pingall
 *** Ping: testing ping reachability
@@ -504,6 +587,8 @@ h8 -> h1 h2 h3 h4 h5 h6 h7
 *** Results: 0% dropped (56/56 received)
 ```
 
+Using the `iperf` tool we can also check that all connections have a similar bandwidth when tested in separate, which is limited by the access layer bandwidth.
+
 ```
 mininet> iperf h1 h2
 *** Iperf: testing TCP bandwidth between h1 and h2
@@ -515,6 +600,107 @@ mininet> iperf h1 h5
 *** Iperf: testing TCP bandwidth between h1 and h5
 *** Results: ['79.4 Mbits/sec', '94.7 Mbits/sec']
 ```
+
+We can also check what happens if one of the links is unstable. We can add a 15% loss to h8 connection by adding the following changes:
+
+```
+$ git diff
+diff --git a/example_1_4.py b/example_1_4.py
+index 7e14d5b..f3d9f3b 100644
+--- a/example_1_4.py
++++ b/example_1_4.py
+@@ -25,6 +25,11 @@ ACCESS_BW = 100  # 100 Mbps
+ ACCESS_DELAY = 5  # 5ms
+
+
++# Bad Link hosts
++BAD_LINK_HOSTS = ["h8"]
++BAD_LINK_LOSS = 15
+
+
+ def createTopo():
+     topo = Topo()
+
+@@ -51,8 +56,14 @@ def createTopo():
+
+     # Create access to host links
+     for idx, host in enumerate(HOSTS):
++        loss = BAD_LINK_LOSS if host in BAD_LINK_HOSTS else 0
+
+         topo.addLink(
+-            host, ACCESS_SWITCHES[idx / 2], bw=ACCESS_BW, delay=ACCESS_DELAY
++            host,
++            ACCESS_SWITCHES[idx / 2],
++            bw=ACCESS_BW,
++            delay=ACCESS_DELAY,
++            loss=loss,
+         )
+
+     return topo
+```
+
+Again, we can see that by adding this loss the TCP bandwidth between the hosts is drastically decreased.
+
+```
+mininet> iperf h1 h8
+*** Iperf: testing TCP bandwidth between h1 and h8
+*** Results: ['197 Kbits/sec', '203 Kbits/sec']
+```
+
+Through a `ping` call we can verify that the packet loss in the round-trip is actually twice the loss declared on the link, probably because both h1 to h8 and h8 to h1 packages have a 15% chance to be lost.
+
+```
+mininet> h1 ping h8
+PING 10.0.0.8 (10.0.0.8) 56(84) bytes of data.
+64 bytes from 10.0.0.8: icmp_seq=2 ttl=64 time=15.2 ms
+64 bytes from 10.0.0.8: icmp_seq=3 ttl=64 time=6.20 ms
+64 bytes from 10.0.0.8: icmp_seq=4 ttl=64 time=22.2 ms
+64 bytes from 10.0.0.8: icmp_seq=5 ttl=64 time=50.1 ms
+64 bytes from 10.0.0.8: icmp_seq=7 ttl=64 time=23.2 ms
+64 bytes from 10.0.0.8: icmp_seq=8 ttl=64 time=42.9 ms
+64 bytes from 10.0.0.8: icmp_seq=9 ttl=64 time=75.6 ms
+64 bytes from 10.0.0.8: icmp_seq=11 ttl=64 time=55.4 ms
+64 bytes from 10.0.0.8: icmp_seq=12 ttl=64 time=24.7 ms
+64 bytes from 10.0.0.8: icmp_seq=15 ttl=64 time=22.9 ms
+64 bytes from 10.0.0.8: icmp_seq=17 ttl=64 time=84.1 ms
+64 bytes from 10.0.0.8: icmp_seq=19 ttl=64 time=65.2 ms
+64 bytes from 10.0.0.8: icmp_seq=20 ttl=64 time=23.8 ms
+64 bytes from 10.0.0.8: icmp_seq=21 ttl=64 time=112 ms
+^C
+--- 10.0.0.8 ping statistics ---
+21 packets transmitted, 14 received, 33% packet loss, time 20090ms
+rtt min/avg/max/mdev = 6.207/44.634/112.803/29.684 ms
+```
+
+
+Impact of Experimenting with varying link parameters
+====================================================
+
+```
+git diff
+diff --git a/example_1_4.py b/example_1_4.py
+index 7e14d5b..cf86a8a 100644
+--- a/example_1_4.py
++++ b/example_1_4.py
+@@ -16,13 +16,18 @@ ACCESS_SWITCHES = ["s{}".format(id + 1) for id in range(4)]
+ HOSTS = ["h{}".format(id + 1) for id in range(8)]
+
+
+ Link Parameters
+-CORE_BW = 10e3  # 10 Gbps
+-CORE_DELAY = 1  # 1 ms
+-DISTRIBUTION_BW = 1e3  # 1 Gbps
+-DISTRIBUTION_DELAY = 3  # 3ms
+-ACCESS_BW = 100  # 100 Mbps
+-ACCESS_DELAY = 5  # 5ms
++CORE_BW = 1e3  # 1 Gbps
++CORE_DELAY = 2  # 2 ms
++DISTRIBUTION_BW = 100  # 100 Mbps
++DISTRIBUTION_DELAY = 2  # 2ms
++ACCESS_BW = 10  # 10 Mbps
++ACCESS_DELAY = 2  # 2ms
+```
+
 
 
 

@@ -16,13 +16,18 @@ ACCESS_SWITCHES = ["s{}".format(id + 1) for id in range(4)]
 HOSTS = ["h{}".format(id + 1) for id in range(8)]
 
 
-#
-CORE_BW = 10e3  # 10 Gbps
-CORE_DELAY = 1  # 1 ms
-DISTRIBUTION_BW = 1e3  # 1 Gbps
-DISTRIBUTION_DELAY = 3  # 3ms
-ACCESS_BW = 100  # 100 Mbps
-ACCESS_DELAY = 5  # 5ms
+# Link Parameters
+CORE_BW = 1e3  # 1 Gbps
+CORE_DELAY = 2  # 2 ms
+DISTRIBUTION_BW = 100  # 100 Mbps
+DISTRIBUTION_DELAY = 2  # 2ms
+ACCESS_BW = 10  # 10 Mbps
+ACCESS_DELAY = 2  # 2ms
+
+
+# Bad Link hosts
+BAD_LINK_HOSTS = ["h8"]
+BAD_LINK_LOSS = 15
 
 
 def createTopo():
@@ -51,8 +56,14 @@ def createTopo():
 
     # Create access to host links
     for idx, host in enumerate(HOSTS):
+        loss = BAD_LINK_LOSS if host in BAD_LINK_HOSTS else 0
+
         topo.addLink(
-            host, ACCESS_SWITCHES[idx / 2], bw=ACCESS_BW, delay=ACCESS_DELAY
+            host,
+            ACCESS_SWITCHES[idx / 2],
+            bw=ACCESS_BW,
+            delay=ACCESS_DELAY,
+            loss=loss,
         )
 
     return topo
