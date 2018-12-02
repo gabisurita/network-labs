@@ -190,7 +190,7 @@ Creating network topologies
 
 Mininet includes a Python framework from describing network topologies.
 
-TODO
+For the following sessions will be using some examples provided by the following git repository.
 
 ```
 git clone https://github.com/glaucogoncalves/sdnufrpe
