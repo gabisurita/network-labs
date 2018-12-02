@@ -465,17 +465,9 @@ Link Parameters:
 * Distribution to Access (a1,a2,a3,a4): 1Gbps, 3ms
 * Access to Hosts: 100Mbps, 5ms
 
+The declared topology can be found on `examples/example_1_4.py`. The most relevant parts are in the script below.
+
 ```python
-# encoding: utf-8
-
-import atexit
-from mininet.net import Mininet
-from mininet.topo import Topo
-from mininet.cli import CLI
-from mininet.log import setLogLevel
-from mininet.link import TCLink
-
-
 # Entity Names
 
 CORE_SwITCH = "c1"
@@ -484,7 +476,7 @@ ACCESS_SWITCHES = ["s{}".format(id + 1) for id in range(4)]
 HOSTS = ["h{}".format(id + 1) for id in range(8)]
 
 
-#
+# Link Parameters
 CORE_BW = 10e3  # 10 Gbps
 CORE_DELAY = 1  # 1 ms
 DISTRIBUTION_BW = 1e3  # 1 Gbps
@@ -524,25 +516,6 @@ def createTopo():
         )
 
     return topo
-
-
-def startNetwork(net):
-    topo = createTopo()
-    net = Mininet(topo=topo, autoSetMacs=True, link=TCLink)
-    net.start()
-    CLI(net)
-
-
-def stopNetwork(net):
-    if net is not None:
-        net.stop()
-
-
-if __name__ == "__main__":
-    net = None
-    atexit.register(lambda: stopNetwork(net))
-    setLogLevel("info")
-    startNetwork(net)
 ```
 
 We can now start the defined topology and verify if the resulting network matches the specification.
@@ -701,7 +674,24 @@ index 7e14d5b..cf86a8a 100644
 +ACCESS_DELAY = 2  # 2ms
 ```
 
+We can now rerun a bandwidth test to verify the impact of the changes. We can see that the rates for the "healthy" hosts have decreased by one order of magnitude, but on host h8, the rates are almost the same. That shows us that the link bandwidth is much less related to the effective bandwidth in high packet loss scenarios.
 
+```
+mininet> iperf h1 h2
+*** Iperf: testing TCP bandwidth between h1 and h2
+*** Results: ['6.35 Mbits/sec', '10.6 Mbits/sec']
+mininet> iperf h1 h3
+*** Iperf: testing TCP bandwidth between h1 and h3
+*** Results: ['5.52 Mbits/sec', '8.02 Mbits/sec']
+mininet> iperf h1 h5
+*** Iperf: testing TCP bandwidth between h1 and h5
+*** Results: ['8.73 Mbits/sec', '10.9 Mbits/sec']
+mininet> iperf h1 h8
+*** Iperf: testing TCP bandwidth between h1 and h8
+*** Results: ['203 Kbits/sec', '214 Kbits/sec']
+```
+
+Finally, we can run Wireshark on Switch s4 to check what's happening with the lost ping packets sent from h1 to h8. We can confirm that both ping requests and ping responses are subjected to failures. That's why we see about the double of the declared loss hate on the round-trip. Check `captures/example_1_5.pcapng` for more details.
 
 
 Curiosity: Why the first ping takes longer?
