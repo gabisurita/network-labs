@@ -6,6 +6,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.link import TCLink
 from mininet.node import Node, OVSKernelSwitch
+from mininet.nodelib import NAT
 
 
 HOST_NAMES = ["h1", "h101", "h110"]
@@ -63,6 +64,17 @@ def build_topo(topo):
         "h110", ip="10.0.12.110/23", defaultRoute="via 10.0.13.24"
     )
 
+    # Create NAT node
+    nat = topo.addHost(
+        "nat1",
+        cls=NAT,
+        ip="10.0.14.1",
+        subnet='10.0.0.0/16',
+        inetIntf="eth0",
+        localIp='10.1.2.2/24',
+        inNamespace=False,
+    )
+
     topo.addLink(HOST_1, S1)
     topo.addLink(HOST_101, R1, intfName2="eth4")
     topo.addLink(HOST_110, R4, intfName2="eth4")
@@ -74,6 +86,7 @@ def build_topo(topo):
     topo.addLink(R5, S1, intfName1="eth5")
     topo.addLink(R6, S1, intfName1="eth2")
     topo.addLink(R5, R1, intfName1="eth1", intfName2="eth3")
+    topo.addLink(nat, R6, intfName2="eth1")
 
     # Subnet 10.0.0.0/23
     R4.setIP("10.0.1.24/23", intf="eth5")
@@ -102,10 +115,14 @@ def build_topo(topo):
     # Subnet 10.0.12.0/23
     R4.setIP("10.0.13.24/23", intf="eth4")
 
+    # Subnet 10.0.14.0/23
+    R6.setIP("10.0.15.26/23", intf="eth1")
+
 
 def setup_routes(net):
     routers = [net.get(name) for name in ROUTER_NAMES]
     R1, R2, R3, R4, R5, R6 = routers
+    nat = net.get("nat1")
 
     # R1 Routes
     R1.add_route("10.0.6.0/23", "10.0.5.22")
@@ -113,6 +130,8 @@ def setup_routes(net):
 
     R1.add_route("10.0.0.0/23", "10.0.11.25")
     R1.add_route("10.0.12.0/23", "10.0.11.25")
+
+    R1.setDefaultRoute("via 10.0.11.25")
 
     # R2 Routes
     R2.add_route("10.0.0.0/23", "10.0.5.21")
@@ -122,6 +141,8 @@ def setup_routes(net):
     R2.add_route("10.0.8.0/23", "10.0.7.23")
     R2.add_route("10.0.12.0/23", "10.0.7.23")
 
+    R2.setDefaultRoute("via 10.0.5.21")
+
     # R3 Routes
     R3.add_route("10.0.2.0/23", "10.0.7.22")
     R3.add_route("10.0.4.0/23", "10.0.7.22")
@@ -130,12 +151,16 @@ def setup_routes(net):
     R3.add_route("10.0.0.0/23", "10.0.9.24")
     R3.add_route("10.0.12.0/23", "10.0.9.24")
 
+    R3.setDefaultRoute("via 10.0.9.24")
+
     # R4 Routes
     R4.add_route("10.0.2.0/23", "10.0.1.25")
     R4.add_route("10.0.10.0/23", "10.0.1.25")
 
     R4.add_route("10.0.4.0/23", "10.0.9.23")
     R4.add_route("10.0.6.0/23", "10.0.9.23")
+
+    R4.setDefaultRoute("via 10.0.1.26")
 
     # R5 Routes
     R5.add_route("10.0.2.0/23", "10.0.11.21")
@@ -145,6 +170,8 @@ def setup_routes(net):
     R5.add_route("10.0.8.0/23", "10.0.1.24")
     R5.add_route("10.0.12.0/23", "10.0.1.24")
 
+    R5.setDefaultRoute("via 10.0.1.26")
+
     # R6 Routes
     R6.add_route("10.0.2.0/23", "10.0.1.25")
     R6.add_route("10.0.4.0/23", "10.0.1.25")
@@ -153,6 +180,11 @@ def setup_routes(net):
 
     R6.add_route("10.0.8.0/23", "10.0.1.24")
     R6.add_route("10.0.12.0/23", "10.0.1.24")
+
+    R6.setDefaultRoute("via 10.0.14.1")
+
+    # NAT Routes
+    nat.cmd("ip route add 10.0.0.0/16 via 10.0.15.26")
 
 
 def start_network(net):
