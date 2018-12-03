@@ -23,6 +23,10 @@ known workspace tools.
 
 ### Setup Port Forwarding
 
+One option is to use host only network.
+
+TODO
+
 If you're using a NAT network setup (VirtualBox default), you may need to add a port forwarding entry.
 
 VirtualBox -> Settings -> Network -> Advanced -> Port Forwarding
@@ -32,15 +36,9 @@ Add rule:
 ```
 Host IP: 127.0.0.1
 Host Port: 20022
-Guest IP: 10.0.2.15 (*)
+Guest IP: 0.0.0.0
 Guest IP: 22
 ```
-
-
-* IP of the virtual machine
-
-
-**Curiosity**: Another option is to use "Host-only Adapter" setup.
 
 
 ### Mac OS

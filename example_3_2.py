@@ -47,16 +47,25 @@ def build_topo(net):
     for switch in switches[:4]:
         net.addLink(switch, SW2_5)
 
-    net.addLink(SW2_5, SW3_1)
-
     for router in routers:
         net.addLink(router, SW3_1)
+
+    net.addLink(SW2_5, SW3_1)
+
+    R1 = net.get("r1")
+    HOST_101 = net.addHost(
+        "h101", ip="10.0.2.101/23", defaultRoute="via 10.0.2.21"
+    )
+
+    net.addLink(HOST_101, R1, intfName2="r1-eth4")
+    R1.setIP("10.0.2.21/23", intf="r1-eth4")
 
 
 def start_topo():
     net = Mininet(topo=None, build=False, ipBase="10.0.0.100/23")
 
     info("*** Starting network\n")
+    build_topo(net)
     net.build()
 
     info("*** Starting controllers\n")
