@@ -4,6 +4,11 @@ Static IP Routing
 Activity 1
 ==========
 
+Using Miniedit Tool
+-------------------
+
+<img src="../img/4_miniedit_topology.png " alt="Miniedit described topology" width="500">
+
 
 ARP Auto-discovery
 ------------------
@@ -106,7 +111,7 @@ Two subnetworks `10.0.0.0/23` (broadcast `10.0.1.255`) and `10.0.2.0/23` (broadc
 
 We can add the second subnetwork to the existing typology:
 
-```
+```diff
 git diff
 diff --git a/example_3_2.py b/example_3_2.py
 index 2113f67..293eb28 100644
@@ -335,7 +340,7 @@ mininet> r6 ip route
 ```
 
 
-```
+```python
 class LinuxRouter(Node):
     "A Node with IP forwarding enabled."
 
@@ -362,7 +367,7 @@ class LinuxRouter(Node):
         ))
 ```
 
-```
+```python
 def build_topo(topo):
     # Create routers
     routers = [
@@ -428,7 +433,7 @@ def build_topo(topo):
     R4.setIP("10.0.13.24/23", intf="eth4")
 ```
 
-```
+```python
 def setup_routes(net):
     routers = [net.get(name) for name in ROUTER_NAMES]
     R1, R2, R3, R4, R5, R6 = routers
@@ -485,7 +490,7 @@ Adding a NAT
 ============
 
 
-```
+```diff
 $ git diff
 diff --git a/example_3_3.py b/example_3_3.py
 index de3d31f..d9a2760 100644

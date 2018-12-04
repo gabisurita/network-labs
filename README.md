@@ -1,7 +1,8 @@
-Computer Networks LAboratory - EA880
+Computer Networks Laboratory - EA880
 ====================================
 
-Gabriela Surita
+Gabriela Surita (RA 139095)
+
 University of Campinas
 
 

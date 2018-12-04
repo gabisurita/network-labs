@@ -273,8 +273,8 @@ By analyzing the script source code, we can see that hosts h1 to h3 are connecte
 
 W can edit `pratica-1-II.py` with the following diff:
 
-```
-wifi@wifi-VirtualBox:~/sdnufrpe$ git diff
+```diff
+$ git diff
 diff --git a/pratica-1-II.py b/pratica-1-II.py
 index 6e53746..3194886 100644
 --- a/pratica-1-II.py
@@ -576,7 +576,7 @@ mininet> iperf h1 h5
 
 We can also check what happens if one of the links is unstable. We can add a 15% loss to h8 connection by adding the following changes:
 
-```
+```diff
 $ git diff
 diff --git a/example_1_4.py b/example_1_4.py
 index 7e14d5b..f3d9f3b 100644
@@ -649,8 +649,8 @@ rtt min/avg/max/mdev = 6.207/44.634/112.803/29.684 ms
 Impact of Experimenting with varying link parameters
 ====================================================
 
-```
-git diff
+```diff
+$git diff
 diff --git a/example_1_4.py b/example_1_4.py
 index 7e14d5b..cf86a8a 100644
 --- a/example_1_4.py
