@@ -1,8 +1,9 @@
 # Vim swap files
 *.swp
+*.swo
 
 # Mypy cache
 .mypy_cache
 
 # Mac OS stuff
-*/.DS_Store
+*.DS_Store
