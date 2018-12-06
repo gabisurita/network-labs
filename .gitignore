@@ -3,3 +3,6 @@
 
 # Mypy cache
 .mypy_cache
+
+# Mac OS stuff
+*/.DS_Store
