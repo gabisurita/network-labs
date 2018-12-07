@@ -299,8 +299,9 @@ h4 -> h1 h2 h3
 Defining bandwidth, delay, and loss rate of packets of network links
 ====================================================================
 
-TODO
-
+Mininet also allows us to define errors commonly found on real networks such as variable latency
+and packet loss. On the next example we will make the link between s1 and s2 slower and with a
+10% loss rate.
 
 ```python
 #Exercise practice of the course Advanced Topics in Computer Networks at UFRPE/Brazil
@@ -353,7 +354,9 @@ if __name__ == '__main__':
         startNetwork()
 ```
 
-TODO
+We can compare the results with pings between h1 and h2 and between h1 and h4.
+We can see that the latency is about 5x greater and we can see some packet loss.
+
 
 ```
 
@@ -411,6 +414,7 @@ PING 10.0.0.4 (10.0.0.4) 56(84) bytes of data.
 rtt min/avg/max/mdev = 200.379/204.203/211.469/3.943 ms
 ```
 
+We can also check the effective TCP bandwidth with `iperf`. We can see the bandwidth is also a lot smaller.
 
 ```
 mininet> iperf h1 h2
@@ -692,18 +696,6 @@ mininet> iperf h1 h8
 ```
 
 Finally, we can run Wireshark on Switch s4 to check what's happening with the lost ping packets sent from h1 to h8. We can confirm that both ping requests and ping responses are subjected to failures. That's why we see about the double of the declared loss hate on the round-trip. Check `captures/example_1_5.pcapng` for more details.
-
-
-Curiosity: Why the first ping takes longer?
-===========================================
-
-TODO
-
-Hip: ARP
-
-Set manual -> Nope
-
-Explain
 
 
 References

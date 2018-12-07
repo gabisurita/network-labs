@@ -9,7 +9,7 @@ This repository contains experiments and tutorials develop during the computer n
 at University of Campinas under supervision of [Professor Christian Esteve Rothenberg](https://github.com/chesteve).
 
 The content is divided between tutorials and reports.
-Tutorials are in a Markdown format and should be easy to reproduce, with most steps and resources are available in this repository inside the [examples](examples/) and [captures](captures/) directories.
+Tutorials are in a web friendly format and should be easy to reproduce, with most steps and resources are available in this repository inside the [examples](examples/) and [captures](captures/) directories.
 Reports have the content developed during the course on a more traditional academic report format, they are also in PDF and their examples are not attached.
 In order to reproduce the steps in the tutorials, start with [Mininet Installation](setup.md).
 

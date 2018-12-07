@@ -1,23 +1,39 @@
 BGP Internet Routing
 ====================
 
-TODO
+BGP, or Border Gateway Protocol is one of the main protocols behind the popularization of the World Wide Web.
+The BGP main purpose is to exchange information between routers between autonomous systems on the internet.
 
+It's known as an Exterior protocol, which means it can aggregates between several subnetworks and is classified
+by design as a Path Vector Protocol, which means it's based on neighbor routers transmitting their routing
+tables every time a route has changed and the information is stored in the links rather than in every node.
+
+To reproduce the experiments in this tutorial, you must install `quagga`, you can do this in debian-based
+sytems with:
 
 ```
 sudo apt-get install quagga
-git clone https://github.com/raphaelvrosa/ea080-lab6
-cd ea080-lab6
 ```
 
 
 Basic BGP Routing
 =================
 
+For this example, we will be using the topology described in [example 6](../examples/example_6). We can
+start it by running:
+
+```
+sudo python bgp.py
+```
+
+Note: unfortunately this example presented some issues when running inside an SSH session. We recommend
+starting a graphical interface first with `xstart`.
+
+The topology used in this experiment is described in the figure below.
+We can quickly analyze some of their main aspects using `nodes` and `net`.
+
 <img src="../img/6_topology.png" alt="Miniedit described topology" width="500">
 
-For this example, we will be using the topology described in TODO. We can quickly
-analyze some of their main aspects using `nodes` and `net`.
 
 ```
 mininet> nodes
@@ -63,7 +79,18 @@ root 	28875  0.0  0.0   4504   740 pts/81   S+   15:04   0:00 /bin/sh -c sudo ps
 root 	28877  0.0  0.0  21292  1084 pts/81   S+   15:04   0:00 grep quagga
 ```
 
-Testando a conectividade entre h1-1 e h3-1 vemos que o caminho ainda é desconhecido entre os dois hosts.
+Checking for connectivity between hosts h1-1 and h3-1 we see that there's no known path between the hosts.
+
+```
+root@wifi-VirtualBox:~# ping 13.0.1.1
+PING 13.0.1.1 (13.0.1.1) 56(84) bytes of data.
+From 11.0.1.1 icmp_seq=1 Destination Host Unreachable
+From 11.0.1.1 icmp_seq=2 Destination Host Unreachable
+From 11.0.1.1 icmp_seq=3 Destination Host Unreachable
+^C
+--- 13.0.1.1 ping statistics ---
+4 packets transmitted, 0 received, +3 errors, 100% packet loss, time 2999ms
+```
 
 
 Looking back to the topology figure, there are 3 known subdomains described, they are:
@@ -204,4 +231,4 @@ the BGP routing processes started by `go.sh`.
 `pgrep -f [b]gpd-R4 | xargs kill -9`
 ```
 
-After this command, the response on h1-1 goes back to the initial message.
+After this command, the response on h1-1 client goes back showing the initial message.
