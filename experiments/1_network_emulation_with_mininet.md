@@ -355,7 +355,7 @@ if __name__ == '__main__':
 ```
 
 We can compare the results with pings between h1 and h2 and between h1 and h4.
-We can see that the latency is about 5x greater and we can see some packet loss.
+We can see that the latency is 5 orders of magnitude greater and we can see some packet loss.
 
 
 ```
@@ -624,7 +624,7 @@ mininet> iperf h1 h8
 *** Results: ['197 Kbits/sec', '203 Kbits/sec']
 ```
 
-Through a `ping` call we can verify that the packet loss in the round-trip is actually twice the loss declared on the link, probably because both h1 to h8 and h8 to h1 packages have a 15% chance to be lost.
+Through a `ping` call we can verify that the packet loss in the round-trip is actually twice the loss declared on the link, that's explained because both h1 to h8 and h8 to h1 packages have a 15% chance to be lost, so a roundtrip has about twice the change of failure for relatively low error rates.
 
 ```
 mininet> h1 ping h8
