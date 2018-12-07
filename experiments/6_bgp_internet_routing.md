@@ -6,7 +6,7 @@ The BGP main purpose is to exchange information between routers between autonomo
 
 It's known as an Exterior protocol, which means it can aggregates between several subnetworks and is classified
 by design as a Path Vector Protocol, which means it's based on neighbor routers transmitting their routing
-tables every time a route has changed and the information is stored in the links rather than in every node.
+tables every time a route has changed.
 
 To reproduce the experiments in this tutorial, you must install `quagga`, you can do this in debian-based
 sytems with:
